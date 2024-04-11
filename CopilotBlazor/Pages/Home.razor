@@ -1,0 +1,78 @@
+﻿@page "/"
+@using NodaTime
+
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<EditForm Model="@person" OnValidSubmit="@HandleValidSubmit">
+    <FluentValidationValidator />
+    <div class="form-group">
+        <label for="FirstName">First Name</label>
+        <InputText id="FirstName" class="form-control" @bind-Value="person.FirstName" />
+        <ValidationMessage For="@(() => person.FirstName)" />
+    </div>
+
+    <div class="form-group">
+        <label for="LastName">Last Name</label>
+        <InputText id="LastName" class="form-control" @bind-Value="person.LastName" />
+        <ValidationMessage For="@(() => person.LastName)" />
+    </div>
+
+    <div class="form-group">
+        <label for="Birthdate">Birthdate</label>
+        <CopilotBlazor.Components.DatePicker @bind-Value="person.Birthdate" />
+        <ValidationMessage For="@(() => person.Birthdate)" />
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <InputText id="Email" class="form-control" @bind-Value="person.Email" />
+        <ValidationMessage For="@(() => person.Email)" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+<p>@person.Birthdate</p>
+
+@code {
+
+    private Person person { get; set; } = new Person();
+
+    private void HandleValidSubmit()
+    {
+        Console.WriteLine("OnValidSubmit");
+    }
+    //ertelle eine Person Klasse und erstelle einen validator für die Person Klasse mit fluent validation
+    //erweiter die Person Klasse um die Eigenschaften Birthdate mit dem Datentyp LocalDate und Email mit dem Datentyp string
+
+    public class Person
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
+        public LocalDate Birthdate { get; set; }
+        public string Email { get; set; }
+    }
+    //erstelle einen Validator für die Person Klasse
+    //definiere die Regeln für die Eigenschaften birthday die überprüft ob die person mindestens 18 Jahre alt ist und für die Eigenschaft Email die überprüft ob die Emailadresse gültig ist
+    public class PersonValidator : AbstractValidator<Person>
+    {
+        public PersonValidator()
+        {
+            RuleFor(x => x.FirstName).NotEmpty().WithMessage("FirstName");
+            RuleFor(x => x.LastName).NotEmpty().WithMessage("LastName");
+
+            RuleFor(x => x.Birthdate).Must(BeAnAdult).WithMessage("Birthdate");
+            RuleFor(x => x.Email).EmailAddress().WithMessage("Email");
+        }
+
+        private bool BeAnAdult(LocalDate birthdate)
+        {
+            return Period.Between(birthdate, LocalDate.FromDateTime(DateTime.Now)).Years >= 18;
+        }
+    }
+}

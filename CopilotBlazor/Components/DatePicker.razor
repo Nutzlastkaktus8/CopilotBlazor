@@ -1,0 +1,55 @@
+﻿@using NodaTime.Text
+
+
+@inherits InputBase<LocalDate>
+
+<input type="date" @bind="BindValue" />
+
+@code {
+
+    public DateTime BindValue
+    {
+        // schreibe den getter und setter für die BindValue Eigenschaft so das die BindValue Eigenschaft den Wert des CurrentValue Feldes zurückgibt und den Wert des CurrentValue Feldes setzt
+        get => CurrentValue.ToDateTimeUnspecified();
+        set => CurrentValue = LocalDate.FromDateTime(value);
+
+    }
+
+    private LocalDate CurrentValueLocalDate
+    {
+        get => CurrentValue;
+        set
+        {
+            if (LocalDatePattern.Iso.Parse(value.ToString("yyyy-MM-dd", null))?.TryGetValue(default, out var result) == true)
+            {
+                CurrentValue = result;
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        CurrentValueLocalDate = CurrentValue;
+    }
+
+
+    protected override bool TryParseValueFromString(string? value, out LocalDate result, out string? validationErrorMessage)
+    {
+        if (LocalDatePattern.Iso.Parse(value)?.TryGetValue(default, out var parseResult) == true)
+        {
+            result = parseResult;
+            validationErrorMessage = null;
+            return true;
+        }
+
+        result = default;
+        validationErrorMessage = "Invalid date";
+        return false;
+    }
+
+    protected override string FormatValueAsString(LocalDate value)
+    {
+        return value.ToString("yyyy-MM-dd", null);
+    }
+
+}
