@@ -24,8 +24,10 @@ Welcome to your new app.
 
     <div class="form-group">
         <label for="Birthdate">Birthdate</label>
-        <CopilotBlazor.Components.DatePicker @bind-Value="person.Birthdate" />
-        <ValidationMessage For="@(() => person.Birthdate)" />
+        <div>
+            <CopilotBlazor.Components.DatePicker @bind-Value="person.Birthdate" 
+            ValidationFor="() => person.Birthdate"/>
+        </div>
     </div>
 
     <div class="form-group">
@@ -72,7 +74,9 @@ Welcome to your new app.
 
         private bool BeAnAdult(LocalDate birthdate)
         {
-            return Period.Between(birthdate, LocalDate.FromDateTime(DateTime.Now)).Years >= 18;
+            var test =  Period.Between(birthdate, LocalDate.FromDateTime(DateTime.Now)).Years >= 18;
+            Console.WriteLine(test);
+            return test;    
         }
     }
 }

@@ -1,18 +1,22 @@
 ﻿@using NodaTime.Text
+@using System.Linq.Expressions
 
 
 @inherits InputBase<LocalDate>
 
-<input type="date" @bind="BindValue" />
-
+@* <input class="form-control" type="date" @bind="BindValue" /> *@
+<SfDatePicker @bind-Value=@BindValue TValue="DateTime?" Placeholder="Choose a Date" CssClass="@ValidationClass"></SfDatePicker>
+<ValidationMessage For="ValidationFor" />
 @code {
+    //schreibe mir eine richtige Func für die ValidationMessage damit der Parameter passt
+    [Parameter]
+    public Expression<Func<LocalDate>> ValidationFor { get; set; }
 
-    public DateTime BindValue
+    public DateTime? BindValue
     {
         // schreibe den getter und setter für die BindValue Eigenschaft so das die BindValue Eigenschaft den Wert des CurrentValue Feldes zurückgibt und den Wert des CurrentValue Feldes setzt
         get => CurrentValue.ToDateTimeUnspecified();
-        set => CurrentValue = LocalDate.FromDateTime(value);
-
+        set => CurrentValue = value.HasValue ? LocalDate.FromDateTime(value.Value) : default;
     }
 
     private LocalDate CurrentValueLocalDate
@@ -52,4 +56,37 @@
         return value.ToString("yyyy-MM-dd", null);
     }
 
+    private string ValidationClass
+    {
+        get
+        {
+            if (!EditContext.GetValidationMessages(FieldIdentifier).Any())
+            {
+                
+            }
+            
+            if (ValidationFor != null && ValidationFor.Body is MemberExpression memberExpression)
+            {
+                var propertyName = memberExpression.Member.Name;
+                var isValid = !HasValidationErrors(propertyName);
+                if (isValid)
+                {
+                    return "e-success";
+                }
+                else
+                {
+                    return "new-error";
+                }
+                // return isValid ? "e-success" : "e-error";
+            }
+            return "e-non-edit";
+        }
+    }
+
+    private bool HasValidationErrors(string propertyName)
+    {
+        var fieldIdentifier = FieldIdentifier.Create(ValidationFor);
+        var validationMessages = EditContext.GetValidationMessages(fieldIdentifier);
+        return validationMessages.Any(m => m.Contains(propertyName));
+    }
 }

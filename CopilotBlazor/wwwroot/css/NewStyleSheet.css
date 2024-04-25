@@ -1,0 +1,22 @@
+﻿
+.datepicker {
+    border: 1px solid;
+    border-radius: 10px;
+    padding: 4px;
+    border-color: gray;
+}
+
+div > .new-error {
+    color: red !important;
+    border-color: red !important;
+}
+
+.new-error > .e-input-group-icon {
+    border-color: red !important;
+}
+
+.new-error.e-input-focus,
+.new-error.e-input-focus:focus {
+    box-shadow: 0 0 0 4px rgb(149 28 28 / 25%) !important;
+}
+
